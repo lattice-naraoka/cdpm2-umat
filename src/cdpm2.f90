@@ -2864,6 +2864,8 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
  integer::rc,log_error,diagnostics(8)
  real(real64)::before(105),after(105),oldwork(3),newwork(3)
  integer::wrc
+ integer::i
+ real(real64)::initial_g,initial_lambda
  real(real64)::j0,j1,fullprops(50),vv(59),extraold(10)
  interface
   subroutine xit()
@@ -2883,6 +2885,31 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
  if(j0<=0.or.j1<=0)then
   call xit();return
  end if
+ ! Abaqus can ask for initial stiffness with KINC=0 before UEXTERNALDB LOP1
+ ! makes FIL geometry available. Only the pristine first-step query is elastic;
+ ! history/restart/real increments must still use the unchanged material path.
+ if(kinc==0.and.jstep(1)==1.and.all(time==0.0_real64).and. &
+    all(stran==0.0_real64).and.all(dstran==0.0_real64).and. &
+    all(stress==0.0_real64).and.all(statev==0.0_real64).and. &
+    j0==1.0_real64.and.j1==1.0_real64)then
+  if(.not.all(ieee_is_finite(props(1:2))))then
+   call xit();return
+  endif
+  if(props(1)<=0.0_real64.or.props(2)<=-1.0_real64.or.props(2)>=0.5_real64)then
+   call xit();return
+  endif
+  initial_g=props(1)/(2.0_real64*(1.0_real64+props(2)))
+  initial_lambda=props(1)*props(2)/((1.0_real64+props(2))*(1.0_real64-2.0_real64*props(2)))
+  ddsdde=0.0_real64
+  ddsdde(1:3,1:3)=initial_lambda
+  do i=1,3
+   ddsdde(i,i)=initial_lambda+2.0_real64*initial_g
+   ddsdde(i+3,i+3)=initial_g
+  enddo
+  rpl=0.0_real64;ddsddt=0.0_real64;drplde=0.0_real64;drpldt=0.0_real64
+  ! Do not alter stress, STATEV, work/energy variables or PNEWDT.
+  return
+ endif
  fullprops(1:23)=props(1:23)
  call get_element_geometry(noel,fullprops(24:50),rc)
  if(rc/=0)then
