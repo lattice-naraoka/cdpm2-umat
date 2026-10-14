@@ -13,7 +13,7 @@ abaqus job=cdp_coarse cpus=1 mp_mode=threads interactive output_precision=full
 abaqus job=cdpm2_coarse cpus=1 mp_mode=threads interactive output_precision=full
 ```
 
-Replace `coarse` with `medium` or `fine` for the other meshes. No geometry table or mesh-preparation tool is needed. Keep the included ASCII FIL and mesh-wide file-output requests when adapting a CDPM2 input. Do not run the same job name twice concurrently. Automatic restart is not supported, although restart output is written by the retained step settings.
+Replace `coarse` with `medium` or `fine` for the other meshes. No geometry table or mesh-preparation tool is needed. Keep the included ASCII FIL, mesh-wide file-output requests and `*DEPVAR` value **89** when adapting a CDPM2 input. Do not run the same job name twice concurrently. Reference geometry is saved in the added state variables. Static restart is covered by the shear example; restart of these Riks examples has not been verified.
 
 Extract each completed ODB with Abaqus Python, then plot with ordinary Python (NumPy and Matplotlib):
 

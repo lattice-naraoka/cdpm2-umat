@@ -13,7 +13,7 @@ abaqus job=cdp_coarse cpus=1 mp_mode=threads interactive output_precision=full
 abaqus job=cdpm2_coarse cpus=1 mp_mode=threads interactive output_precision=full
 ```
 
-他のメッシュは`coarse`を`medium`または`fine`へ置き換えます。形状表やメッシュ準備ツールは不要です。CDPM2入力を変更するときも、付属のASCII形式FIL指定とメッシュ全域のFILE出力指定を保持してください。同名ジョブを同時実行しないでください。保持したステップ設定によりリスタートデータを書き出しますが、自動生成方式の再開解析は非対応です。
+他のメッシュは`coarse`を`medium`または`fine`へ置き換えます。形状表やメッシュ準備ツールは不要です。CDPM2入力を変更するときも、付属のASCII形式FIL指定、メッシュ全域のFILE出力指定、`*DEPVAR`の **89** を保持してください。同名ジョブを同時実行しないでください。元の形状は追加状態変数へ保存します。静的リスタートはせん断例で扱い、このRiks例のリスタートは未検証です。
 
 完了した各ODBをAbaqus Pythonで抽出し、通常のPython（NumPy・Matplotlib）で描画します。
 

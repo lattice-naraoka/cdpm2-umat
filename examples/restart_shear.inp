@@ -1,0 +1,60 @@
+*Heading
+Continue the shear example from its first-step fifth increment.
+*Restart,read,step=1,inc=5
+*Step,name=phase2,nlgeom=YES,inc=1000
+*Static
+0.1,1.,1e-8,0.1
+*Boundary,op=MOD
+A.TOP,1,1,0.0001
+A.TOP,2,2,8e-05
+B.TOP,1,1,-8e-05
+B.TOP,2,2,0.0001
+*Output,field,frequency=1
+*Element Output
+S,LE,SDV
+*Node Output
+U,RF
+*Node File,frequency=999999
+U
+*El File,frequency=999999
+S
+*Restart,write,frequency=5
+*End Step
+*Step,name=phase3,nlgeom=YES,inc=1000
+*Static
+0.1,1.,1e-8,0.1
+*Boundary,op=MOD
+A.TOP,1,1,-0.0001
+A.TOP,2,2,8e-05
+B.TOP,1,1,-8e-05
+B.TOP,2,2,-0.0001
+*Output,field,frequency=1
+*Element Output
+S,LE,SDV
+*Node Output
+U,RF
+*Node File,frequency=999999
+U
+*El File,frequency=999999
+S
+*Restart,write,frequency=5
+*End Step
+*Step,name=phase4,nlgeom=YES,inc=1000
+*Static
+0.1,1.,1e-8,0.1
+*Boundary,op=MOD
+A.TOP,1,1,0
+A.TOP,2,2,0
+B.TOP,1,1,0
+B.TOP,2,2,0
+*Output,field,frequency=1
+*Element Output
+S,LE,SDV
+*Node Output
+U,RF
+*Node File,frequency=999999
+U
+*El File,frequency=999999
+S
+*Restart,write,frequency=5
+*End Step

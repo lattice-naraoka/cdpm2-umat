@@ -1,6 +1,6 @@
 ! SPDX-License-Identifier: LGPL-2.1-or-later
 ! OOFEM original portions: Copyright (C) 1993 - 2013 Borek Patzak
-! Modified for a Fortran Abaqus UMAT, 2026-09-30 to 2026-10-12.
+! Modified for a Fortran Abaqus UMAT, 2026-09-30 to 2026-10-14.
 ! Distributed without warranty. See ../LICENSE and ../THIRD_PARTY_NOTICES.md.
 ! Derived from OOFEM (LGPL-2.1-or-later), commit
 ! 1c1dbd2b4b8c95dcc26878bf5009d44ed535e1a6, floatmatrixf.h eig and
@@ -395,7 +395,7 @@ contains
     real(real64), intent(in), optional :: seed(4)
     real(real64) :: y(4),yp(4),ym(4),r(4),rp(4),rm(4),jac(4,4),dy(4),scale(4),h,a,n0
     real(real64)::colscale(4),jj(4,4),normal(4,4),mat(4,4),rhs(4),vec(4),step(4)
-    real(real64)::yield_scale
+    real(real64)::yield_scale,kappa_tolerance
     logical::active(4),found
     integer :: damp,aset,limit,j,ls
     logical :: ok
@@ -435,7 +435,14 @@ contains
       end if
       n0=maxval(abs(r))
       !861: tighter scaled regular residual; equations/activation/backtracking unchanged.
-      if (maxval(abs(r(1:3)))<1e-12_real64.and.abs(r(4))/yield_scale<1e-12_real64) then
+      !20261013: kappa residual uses increment-relative accuracy, not total-kappa
+      ! relative accuracy. Keep stress and yield tests unchanged. The spacing
+      ! floor prevents demanding a residual below representable kappa resolution.
+      ! This changes numerical acceptance only, not evolution or residual equations.
+      kappa_tolerance=max(1e-12_real64,1e-8_real64*abs(y(3)*scale(3)-kold), &
+        8*spacing(max(abs(y(3)*scale(3)),abs(kold))))
+      if (maxval(abs(r(1:2)))<1e-12_real64.and.abs(r(3))<kappa_tolerance.and. &
+          abs(r(4))/yield_scale<1e-12_real64) then
         state=y*scale
         rc=0
         return
@@ -540,15 +547,32 @@ contains
     real(real64), intent(in) :: a(4,4),b(4)
     real(real64), intent(out) :: x(4)
     logical, intent(out) :: ok
-    real(real64) :: aug(4,5),row(5),factor
+    real(real64) :: aug(4,5),row(5),factor,cs(4),rs(4),balanced(4,4),rhs(4),z(4),err(4),den(4)
     integer :: i,j,k
-    aug(:,1:4)=a
-    aug(:,5)=b
     ok=.false.
     x=0
+    if(.not.all(ieee_is_finite(a)).or..not.all(ieee_is_finite(b)))return
+    !20261013: equilibrate unknown columns and equation rows before pivoting.
+    ! A large flow-derivative column must not make an unrelated order-one
+    ! pivot appear singular. This solves the same equations, without clamping
+    ! coefficients or changing material/residual convergence tolerances.
+    cs=maxval(abs(a),dim=1)
+    if(any(cs<=tiny(1._real64)))return
+    do j=1,4
+      balanced(:,j)=a(:,j)/cs(j)
+    enddo
+    rs=maxval(abs(balanced),dim=2)
+    if(any(rs<=tiny(1._real64)))return
+    do i=1,4
+      balanced(i,:)=balanced(i,:)/rs(i)
+    enddo
+    rhs=b/rs
+    if(.not.all(ieee_is_finite(rhs)))return
+    aug(:,1:4)=balanced
+    aug(:,5)=rhs
     do i=1,4
       k=i-1+maxloc(abs(aug(i:4,i)),dim=1)
-      if (abs(aug(k,i))<1e-14_real64*max(1.0_real64,maxval(abs(a)))) return
+      if (abs(aug(k,i))<1e-14_real64*max(1.0_real64,maxval(abs(balanced)))) return
       row=aug(i,:)
       aug(i,:)=aug(k,:)
       aug(k,:)=row
@@ -558,9 +582,17 @@ contains
       end do
     end do
     do i=4,1,-1
-      x(i)=(aug(i,5)-sum(aug(i,i+1:4)*x(i+1:4)))/aug(i,i)
+      z(i)=(aug(i,5)-sum(aug(i,i+1:4)*z(i+1:4)))/aug(i,i)
     end do
+    if(.not.all(ieee_is_finite(z)))return
+    ! Componentwise backward-error check in equivalent scaled equations.
+    err=abs(matmul(balanced,z)-rhs)
+    den=matmul(abs(balanced),abs(z))+abs(rhs)
+    if(.not.all(ieee_is_finite([err,den])))return
+    if(any(err>1e-10_real64*max(den,tiny(1._real64))))return
+    x=z/cs
     ok=all(ieee_is_finite(x))
+    if(.not.ok)x=0
   end subroutine
 end module
 
@@ -2365,7 +2397,8 @@ contains
   !1133: numerical increment-control limit, not a damage ceiling.
   ! Reject an abrupt trial; all state stays committed until a smaller increment
   ! is accepted. Constitutive damage may still reach1 over accepted increments.
-  if(maxval(tr%history%damage-cur%history%damage)>.25_real64)then
+  ! Without viscosity retain the original rate-independent increment check.
+  if(mu==0.and.maxval(tr%history%damage-cur%history%damage)>.25_real64)then
    rc=1
    if(present(stats))stats=[0,1,0,0,0]
    return
@@ -2397,6 +2430,13 @@ contains
  endif
  v=oldv
  call relaxation(mu,dt,oldv,[cur%plastic,cur%history%damage],v,rc);if(rc/=0)return
+ ! With viscosity control the actual damage entering the stress update,
+ ! not its unrelaxed target. Failure still leaves all caller state unchanged.
+ if(mu>0.and.maxval(v(7:8)-oldv(7:8))>.25_real64)then
+  rc=1
+  if(present(stats))stats=[0,1,0,0,0]
+  return
+ endif
  dv(1:6,:)=b*g%ep;dv(7:8,:)=b*g%hist(12:13,:)
  effective=elastic_stress(p,e-v(1:6))
  do j=1,6;ceff(:,j)=elastic_stress(p,id(:,j)-dv(1:6,j));enddo
@@ -2771,7 +2811,8 @@ subroutine uexternaldb(lop,lrestart,time,dtime,kstep,kinc)
   call get_environment_variable('CDPM2_GEOMETRY_TABLE',path,length=n,status=stat)
   if(stat/=0.or.n==0.or.n>len(path))then
    if(lop==4)then
-    write(6,*)'CDPM2 restart requires original CDPM2_GEOMETRY_TABLE; no automatic deck guessing.'
+    write(6,*)'CDPM2 restart: original geometry restored from STATEV63:89 (DEPVAR89).'
+    ! Legacy DEPVAR62 can still restart with an explicit original geometry table.
     return
    endif
    if(n>len(path).or.(stat/=0.and.stat/=1))then
@@ -2854,6 +2895,7 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
  use trial_log_391,only:write_corot_trial
  use work_diagnostic_435,only:update_work
  use geometry_provider_421,only:get_element_geometry
+ use geometry_payload_406,only:decode_initial_geometry
  implicit none
  character(80),intent(in)::cmname
  integer,intent(in)::ndi,nshr,ntens,nstatv,nprops,noel,npt,layer,kspt,jstep(4),kinc
@@ -2865,14 +2907,14 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
  real(real64)::before(105),after(105),oldwork(3),newwork(3)
  integer::wrc
  integer::i
- real(real64)::initial_g,initial_lambda
+ real(real64)::initial_g,initial_lambda,geometry_nodes(3,8),geometry_length
  real(real64)::j0,j1,fullprops(50),vv(59),extraold(10)
  interface
   subroutine xit()
   end subroutine
  end interface
  if(trim(cmname)/='CDPM2_VISCOUS_1049'.or.ndi/=3.or.nshr/=3.or.ntens/=6.or. &
-    nstatv/=62.or.nprops/=24.or.jstep(2)/=1.or.jstep(3)/=1.or.jstep(4)/=0)then
+    (nstatv/=62.and.nstatv/=89).or.nprops/=24.or.jstep(2)/=1.or.jstep(3)/=1.or.jstep(4)/=0)then
   call xit();return
  end if
  if(.not.all(ieee_is_finite(dfgrd0)).or..not.all(ieee_is_finite(dfgrd1)))then
@@ -2911,7 +2953,22 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
   return
  endif
  fullprops(1:23)=props(1:23)
- call get_element_geometry(noel,fullprops(24:50),rc)
+ ! 20261014: reference geometry travels with Abaqus STATEV/restart data.
+ ! No job-name lookup or extra shape file. Slots1:62 are unchanged.
+ rc=2
+ if(nstatv==89)then
+  if(any(statev(63:89)/=0._real64))then
+   fullprops(24:50)=statev(63:89)
+   call decode_initial_geometry(fullprops(24:50),geometry_nodes,geometry_length,rc)
+   if(rc/=0)then
+    call xit();return
+   endif
+  else
+   call get_element_geometry(noel,fullprops(24:50),rc)
+  endif
+ else
+  call get_element_geometry(noel,fullprops(24:50),rc)
+ endif
  if(rc/=0)then
   call xit();return
  end if
@@ -2919,7 +2976,7 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
  if(.not.all(ieee_is_finite(oldwork)))then
   call xit();return
  end if
- before=[stress,statev,reshape(ddsdde,[36]),pnewdt]
+ before=[stress,statev(1:62),reshape(ddsdde,[36]),pnewdt]
  extraold=statev(53:62)
  vv=[statev(1:49),statev(53:62)]
  call viscous_payload(fullprops,props(24),dtime,stran,dstran,drot,j1,stress,vv,ddsdde,pnewdt,rc,diagnostics)
@@ -2930,12 +2987,12 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
   newwork=oldwork
   call update_work(oldwork,before(1:6),stress,dstran,statev(2:7),statev(53:58),newwork,wrc)
   if(wrc/=0)then
-   stress=before(1:6);statev=before(7:68);ddsdde=reshape(before(69:104),[6,6]);pnewdt=before(105);rc=2
+   stress=before(1:6);statev(1:62)=before(7:68);ddsdde=reshape(before(69:104),[6,6]);pnewdt=before(105);rc=2
   else
    statev(50:52)=newwork
   end if
  end if
- after=[stress,statev,reshape(ddsdde,[36]),pnewdt]
+ after=[stress,statev(1:62),reshape(ddsdde,[36]),pnewdt]
  call write_corot_trial(noel,npt,jstep,kinc,rc,time,dtime,props(24),stran,dstran,drot,dfgrd0,dfgrd1,before,after,log_error,diagnostics)
  if(log_error/=0)then
   call xit();return
@@ -2944,6 +3001,8 @@ subroutine umat(stress,statev,ddsdde,sse,spd,scd,rpl,ddsddt,drplde,drpldt, &
   call xit();return
  end if
  if(rc/=0)return
+ ! Commit geometry only after the entire material/work update succeeds.
+ if(nstatv==89)statev(63:89)=fullprops(24:50)
  rpl=0;ddsddt=0;drplde=0;drpldt=0
 contains
  real(real64) function det3(a)
