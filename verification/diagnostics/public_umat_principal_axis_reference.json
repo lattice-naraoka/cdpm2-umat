@@ -1,0 +1,11 @@
+{
+  "public_umat_unchanged": true,
+  "mu": 0.001,
+  "n": 960,
+  "reference": "Original OOFEM, principal-axis (no engineering shear) strain input; stress rotated back for comparison",
+  "stress_max": 3.4494170713007646e-05,
+  "damage_max": [
+    1.8311838643848832e-05,
+    3.1251309616328604e-05
+  ]
+}

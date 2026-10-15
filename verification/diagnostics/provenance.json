@@ -1,0 +1,19 @@
+{
+  "scope": "DIAGNOSTIC_COPY_ONLY",
+  "norm_only_shear_weight_change": true,
+  "public_umat_unchanged": true,
+  "runs": [
+    {
+      "umat_sha256": "4aad3cf9892369fe7d165553aab58f4062c7e5996d211a310ef425a99650c217",
+      "library_sha256": "577051764adf592646e16986eeeb5d3a1cc1678298143a34553b5746fc000dd7",
+      "native_oofem_executable_sha256": "2cc3f8abb5670bf65addf4ad301601ada8f57ed63a1721a88d7a5319d4e38780",
+      "native_oofem_source_sha256": "fd3beb8fa510b41b191deb1f16e51ccea3b48009daec01716b1461746f511d13"
+    },
+    {
+      "umat_sha256": "4aad3cf9892369fe7d165553aab58f4062c7e5996d211a310ef425a99650c217",
+      "library_sha256": "577051764adf592646e16986eeeb5d3a1cc1678298143a34553b5746fc000dd7",
+      "native_oofem_executable_sha256": "2cc3f8abb5670bf65addf4ad301601ada8f57ed63a1721a88d7a5319d4e38780",
+      "native_oofem_source_sha256": "fd3beb8fa510b41b191deb1f16e51ccea3b48009daec01716b1461746f511d13"
+    }
+  ]
+}

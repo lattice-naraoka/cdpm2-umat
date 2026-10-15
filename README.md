@@ -10,13 +10,14 @@ CDPM2 was developed by Grassl and co-authors; this project implements the existi
 - [English manual](docs/CDPM2_Manual_EN.pdf): theory, verification, inputs and usage.
 - [Japanese manual](docs/CDPM2_Manual_JA.pdf).
 - [UMAT source](src/cdpm2.f90).
+- [One-element verification](verification/): bilingual guides, 312 material/path combinations, reproducible inputs and numerical results; shear-norm differences from the reference OOFEM version are documented separately.
 - [Examples](examples/).
 - [Notched-beam comparison](examples/notched_beam/): six paired CDP/CDPM2 cases and result plotting.
 - [Reinforcing-bar pullout](examples/pullout/): paired CDP/CDPM2 inputs, bilingual example guide and result plotting.
 
 No geometry-table preparation is required. The Fortran source reads initial mesh geometry from Abaqus-generated ASCII `.fil` output. Use `*DEPVAR` with **89** variables: the original 62 material/work variables are unchanged; the additional 27 retain reference geometry in Abaqus restart data. The examples include the required settings. Restart jobs do not need the original FIL or a separate geometry file. Existing 62-variable inputs still run, but their old restart files do not contain the added geometry. See the manual for details.
 
-Download the repository using **Code → Download ZIP**, or clone it. The manual is the single detailed guide. The repository contains the source, runnable examples, PDF manuals and license notices needed by users.
+Download the repository using **Code → Download ZIP**, or clone it. The manual covers theory, inputs and usage; the Verification Guide reports the one-element comparisons. The repository contains the source, runnable examples, verification files, PDF guides and license notices needed by users.
 
 This is a research implementation, not an official SIMULIA or OOFEM product. Review the manual's limitations before use.
 

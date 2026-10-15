@@ -1,0 +1,21 @@
+{
+  "umat_sha256": "78cc9a681a3526cd1d04e7232ada14ecb18cb116ecd4426b186029ef5536b2de",
+  "library_sha256": "f0dd15027e22cca1967c31b7d93daf7f9ce578e49d06503636afd13e96c4adeb",
+  "native_oofem_executable_sha256": "2cc3f8abb5670bf65addf4ad301601ada8f57ed63a1721a88d7a5319d4e38780",
+  "native_oofem_source_sha256": "fd3beb8fa510b41b191deb1f16e51ccea3b48009daec01716b1461746f511d13",
+  "abaqus_version": "2026",
+  "oofem_version": "2.6",
+  "oofem_binary_git_id": "unavailable",
+  "reference_source_commit": "1c1dbd2b4b8c95dcc26878bf5009d44ed535e1a6",
+  "reference_source_lf_sha256": "6ddbf0205392308e36ca495e1fa168d3e2ba48bdc86b4d1ce05673c20d0dabc1",
+  "reference_source_line_endings": "Recorded execution-source hash is CRLF; official pinned GitHub source is LF. After CR removal their bytes match.",
+  "umat_git_commit": "760af08a8e72e06dea34c34e4a1639a2bbc9d5bf",
+  "viscosity": 0.001,
+  "loading_period": 1000,
+  "comparison_runs": 342,
+  "distinct_conditions": 312,
+  "latest_status_counts": {
+    "FAIL": 5,
+    "PASS": 307
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "unchanged_native_source": true,
+  "n": 960,
+  "Hp": 0.5,
+  "common_helem": 1.4142135623730951,
+  "rotated_stress_max_difference": 0.041416679054556337,
+  "rotated_damage_max_difference": [
+    0.00043192393000002216,
+    0.0038332098300000172
+  ]
+}
