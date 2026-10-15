@@ -1,0 +1,74 @@
+*Heading
+Reinforcing-bar pullout: built-in CDP; damage cap0.99; viscosity1e-4
+** N, mm, MPa. Adopted rib crest width2.55 mm and first centre8.3 mm.
+** Ring-rib geometric idealization.
+*File Format,ASCII
+*Include,input=mesh.inp
+*Solid Section,elset=reb,material=STEEL
+,
+*Solid Section,elset=conc,material=CDP_MATCHED_CANDIDATE
+,
+*Hourglass Stiffness
+55.625
+*Material,name=STEEL
+*Elastic
+200000.,0.3
+*Plastic
+940.,0.
+*Include,input=material.inp
+*Surface Interaction,name=BOND_CONTACT
+*Friction
+0.5
+** Linear penalty stiffness is0.005 times default; scale applied ONLY in surface behavior.
+*Surface Behavior,penalty=linear
+ ,0.0,0.005
+*Contact Pair,interaction=BOND_CONTACT,type=SURFACE TO SURFACE
+CONCRETE_INTERFACE,STEEL_INTERFACE
+*Boundary
+REB_SYM_X,1,1
+CONC_SYM_X,1,1
+REB_SYM_Y,2,2
+CONC_SYM_Y,2,2
+CONC_TOP,3,3
+*Step,name=PULLOUT,nlgeom=YES,unsymm=YES,inc=100000
+*Static
+0.001,1.,1e-6,1.0
+** Contact convergence tolerances from0015 final tc10b; other controls maintained.
+*Controls,parameters=line search
+10,1.0,0.0001,0.1,0.1
+*Controls,parameters=field
+0.02,10.0,,,0.2
+*Controls,parameters=time incrementation
+,,,,,,5,10,,,
+*Controls,parameters=constraints
+,,,10.0,10.0
+*Contact Controls,stabilize=0.01,stiffness scale factor=1.0
+,1.0
+*Boundary
+REB_TOP,3,3,2.
+*Output,field,frequency=10
+*Node Output
+U,RF
+*Element Output,elset=conc
+S,LE,DAMAGET,DAMAGEC,PEEQ,PEEQT
+*Element Output,elset=reb
+S,LE,PEEQ
+*Contact Output
+CSTRESS,CDISP
+*Output,history,frequency=1
+*Energy Output
+ALLAE,ALLWK,ALLSD,ALLIE
+*Node Output,nset=REB_TOP
+U3,RF3
+*Node Output,nset=REB_BOTTOM
+U3
+*Node Output,nset=CONC_BOTTOM
+U3
+** Required ASCII FIL initial connectivity/coordinates for automatic geometry.
+*Node File,frequency=999999
+U
+*El File,frequency=999999
+S
+** Preserve states for future continuation; no automatic stop criterion.
+*Restart,write,frequency=10
+*End Step

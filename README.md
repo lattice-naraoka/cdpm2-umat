@@ -12,6 +12,7 @@ CDPM2 was developed by Grassl and co-authors; this project implements the existi
 - [UMAT source](src/cdpm2.f90).
 - [Examples](examples/).
 - [Notched-beam comparison](examples/notched_beam/): six paired CDP/CDPM2 cases and result plotting.
+- [Reinforcing-bar pullout](examples/pullout/): paired CDP/CDPM2 inputs, bilingual example guide and result plotting.
 
 No geometry-table preparation is required. The Fortran source reads initial mesh geometry from Abaqus-generated ASCII `.fil` output. Use `*DEPVAR` with **89** variables: the original 62 material/work variables are unchanged; the additional 27 retain reference geometry in Abaqus restart data. The examples include the required settings. Restart jobs do not need the original FIL or a separate geometry file. Existing 62-variable inputs still run, but their old restart files do not contain the added geometry. See the manual for details.
 
