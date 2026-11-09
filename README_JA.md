@@ -10,7 +10,7 @@ GrasslらのCDPM2をAbaqus/Standardの陰解法で利用するFortran UMATです
 - [マニュアル](docs/CDPM2_Manual_JA.pdf)：現在の材料モデル、数値更新法、入力・使い方。
 - [検証ガイド](docs/CDPM2_Verification_JA.pdf)：現在の配布ソースの試験条件・結果・制約。
 - [解析例題集](examples/pullout/CDPM2_Examples_JA.pdf)：目次、例題1、例題2。
-- [更新履歴（日英併記）](docs/CDPM2_Change_History.pdf)：変更点を1冊に集約。
+- [更新履歴（日本語版・英語版）](docs/CDPM2_Change_History_JA.pdf)：変更点を言語別に集約。
 
 文書版は2026-11-09です。例題集は目次が1ページ、例題1が2～6ページ、例題2が7～11ページです。
 

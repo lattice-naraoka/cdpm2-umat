@@ -10,7 +10,7 @@ Fortran implementation of the existing CDPM2 model of Grassl and coauthors for i
 - [Manual](docs/CDPM2_Manual_EN.pdf): current material model, numerical update, inputs and usage.
 - [Verification guide](docs/CDPM2_Verification_EN.pdf): tested source, methods, results and limitations.
 - [Analysis examples](examples/pullout/CDPM2_Examples_EN.pdf): contents, Example 1 and Example 2.
-- [Change history (bilingual)](docs/CDPM2_Change_History.pdf): one consolidated history PDF.
+- [Change history (English)](docs/CDPM2_Change_History_EN.pdf): Separate Japanese and English editions.
 
 Documentation edition: 2026-11-09. Examples contents are on page 1, Example 1 on pages 2-6, and Example 2 on pages 7-11.
 
