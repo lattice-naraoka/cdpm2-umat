@@ -2,7 +2,7 @@
 
 [日本語PDF](../docs/CDPM2_Verification_JA.pdf) | [English PDF](../docs/CDPM2_Verification_EN.pdf)
 
-The bilingual Verification Guide reports native OOFEM / Abaqus UMAT comparisons
+The saved reference data in this folder report native OOFEM / Abaqus UMAT comparisons
 for 24 prescribed strain paths and 13 material sets. Every UMAT run uses viscosity
 `1e-3`; OOFEM is rate-independent. Analytical elasticity provides an additional
 independent reference. Completion and numerical acceptance are reported separately.
@@ -12,6 +12,8 @@ fixed-principal-axis nonproportional histories. Side strains are prescribed;
 these are not traction-free uniaxial-stress tests. Each specimen is one C3D8
 element, with all eight integration points assessed. Disconnected specimens with
 identical properties share an Abaqus batch only to reduce launch overhead.
+
+The current-source regression and limitations are in the linked verification guides and [evidence](../evidence/). The stored OOFEM results belong to the reference campaign; they are not a new independent OOFEM run for the current source.
 
 ## Reproduce
 

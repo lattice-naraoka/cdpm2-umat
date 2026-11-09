@@ -1,0 +1,146 @@
+{
+  "wedge": {
+    "a": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 44,
+      "accepted_increments": 40
+    },
+    "b": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 44,
+      "accepted_increments": 40
+    },
+    "elements": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "S": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "LE": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "SDV": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    },
+    "nodes": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "U": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "RF": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    }
+  },
+  "serial_smp": {
+    "a": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 43,
+      "accepted_increments": 40
+    },
+    "b": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 43,
+      "accepted_increments": 40
+    },
+    "elements": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "S": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "LE": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "SDV": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    },
+    "nodes": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "U": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "RF": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    }
+  },
+  "smp_repeat": {
+    "a": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 43,
+      "accepted_increments": 40
+    },
+    "b": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 43,
+      "accepted_increments": 40
+    },
+    "elements": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "S": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "LE": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "SDV": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    },
+    "nodes": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "U": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "RF": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    }
+  }
+}

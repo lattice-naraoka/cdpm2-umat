@@ -2,23 +2,38 @@
 
 [日本語](README_JA.md)
 
-Fortran implementation of CDPM2 for implicit analysis with Abaqus/Standard.
-CDPM2 was developed by Grassl and co-authors; this project implements the existing constitutive model as a UMAT, based on the OOFEM reference implementation.
+Fortran implementation of the existing CDPM2 model of Grassl and coauthors for implicit Abaqus/Standard, based on the OOFEM reference implementation.
+**Research preview: not production-qualified and not an official SIMULIA or OOFEM product.**
 
-## Start here
+## Documentation
 
-- [English manual](docs/CDPM2_Manual_EN.pdf): theory, verification, inputs and usage.
-- [Japanese manual](docs/CDPM2_Manual_JA.pdf).
-- [UMAT source](src/cdpm2.f90).
-- [One-element verification](verification/): bilingual guides, 312 material/path combinations, reproducible inputs and numerical results; shear-norm differences from the reference OOFEM version are documented separately.
-- [Examples](examples/).
-- [Notched-beam comparison](examples/notched_beam/): six paired CDP/CDPM2 cases and result plotting.
-- [Reinforcing-bar pullout](examples/pullout/): paired CDP/CDPM2 inputs, bilingual example guide and result plotting.
+- [Manual](docs/CDPM2_Manual_EN.pdf): current material model, numerical update, inputs and usage.
+- [Verification guide](docs/CDPM2_Verification_EN.pdf): tested source, methods, results and limitations.
+- [Analysis examples](examples/pullout/CDPM2_Examples_EN.pdf): contents, Example 1 and Example 2.
+- [Change history (bilingual)](docs/CDPM2_Change_History.pdf): one consolidated history PDF.
 
-No geometry-table preparation is required. The Fortran source reads initial mesh geometry from Abaqus-generated ASCII `.fil` output. Use `*DEPVAR` with **89** variables: the original 62 material/work variables are unchanged; the additional 27 retain reference geometry in Abaqus restart data. The examples include the required settings. Restart jobs do not need the original FIL or a separate geometry file. Existing 62-variable inputs still run, but their old restart files do not contain the added geometry. See the manual for details.
+Documentation edition: 2026-11-09. Examples contents are on page 1, Example 1 on pages 2-6, and Example 2 on pages 7-11.
 
-Download the repository using **Code → Download ZIP**, or clone it. The manual covers theory, inputs and usage; the Verification Guide reports the one-element comparisons. The repository contains the source, runnable examples, verification files, PDF guides and license notices needed by users.
+## Source and tested scope
 
-This is a research implementation, not an official SIMULIA or OOFEM product. Review the manual's limitations before use.
+- [UMAT source](src/cdpm2.f90)
+- [Validation details](VALIDATION.md) and [machine-readable evidence](evidence/)
+- [Example 1 inputs](examples/pullout/), [Example 2 inputs](examples/pullout/case2/) and [Example 2 notes](CASE2.md)
+- [Notched-beam inputs](examples/notched_beam/) and [one-element inputs/reference data](verification/)
 
-LGPL-2.1-or-later, without warranty. See [LICENSE](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md). Third-party experimental material retains its owners' rights.
+Regression against the reference source covers 312 conditions: all 36 runs completed, with maximum stress difference 3.81149e-9 MPa.
+This is not a fresh native OOFEM campaign or experimental validation. Archived local trials give 724 converged and 370 rejected out of 1094;
+the specified 15-width tangent criterion qualifies 700/724 points. Same-source restart exceeds its initial-frame reaction criterion,
+so all-field equivalence is not established. See the verification guide for scope and unresolved issues.
+Existing saved examples and reference datasets are not reruns of the currently distributed source.
+
+## Usage
+
+Use licensed Abaqus and a supported Fortran compiler, following the manual. Initial geometry is read from ASCII FIL output;
+basic input uses 24 properties and 89 state entries. Cross-version restart compatibility is not guaranteed.
+Download using **Code → Download ZIP** or git clone.
+
+Independent spectral test: `python tests/spectral_reference.py --compiler gfortran`
+Never link the standalone test utility stubs into Abaqus.
+
+LGPL-2.1-or-later, without warranty. Retain [LICENSE](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md).

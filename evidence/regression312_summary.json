@@ -1,0 +1,241 @@
+{
+  "status_counts": {
+    "COMPARED": 312
+  },
+  "analysis_wall_seconds": {
+    "old": 164.3954291343689,
+    "new": 158.927175283432
+  },
+  "top_stress_changes": [
+    {
+      "group": "ft_high",
+      "case": "alternating_12cycles",
+      "job": "suite_r2__ft_high",
+      "expected_frames": 240,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 240,
+      "new_frames": 240,
+      "max_abs": {
+        "S": 3.811486237736972e-09,
+        "LE": 0.0,
+        "SDV14": 8.498591341776773e-08,
+        "SDV37": 1.9246892968283191e-10,
+        "SDV38": 0.0,
+        "SDV39": 0.0,
+        "SDV59": 1.924227444050075e-10,
+        "SDV60": 0.0
+      },
+      "stress_max_scaled_to_old_or_1": 3.370082852399369e-11,
+      "status": "COMPARED"
+    },
+    {
+      "group": "Hp_05",
+      "case": "shear_reversal",
+      "job": "refine_Hp_3840__Hp_05",
+      "expected_frames": 3840,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 3840,
+      "new_frames": 3840,
+      "max_abs": {
+        "S": 1.6097390087566055e-10,
+        "LE": 0.0,
+        "SDV14": 5.394138469227983e-10,
+        "SDV37": 3.823830141413964e-12,
+        "SDV38": 1.3058443215641091e-12,
+        "SDV39": 0.0,
+        "SDV59": 3.823719119111502e-12,
+        "SDV60": 1.3058443215641091e-12
+      },
+      "stress_max_scaled_to_old_or_1": 3.296055139384217e-11,
+      "status": "COMPARED"
+    },
+    {
+      "group": "Hp_05",
+      "case": "compression_cycles",
+      "job": "refine_Hp_960__Hp_05",
+      "expected_frames": 960,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 960,
+      "new_frames": 960,
+      "max_abs": {
+        "S": 9.983018856019044e-10,
+        "LE": 0.0,
+        "SDV14": 2.481996830283606e-10,
+        "SDV37": 4.3699932561480637e-11,
+        "SDV38": 7.595346573907591e-11,
+        "SDV39": 0.0,
+        "SDV59": 4.365802164230104e-11,
+        "SDV60": 7.588061949614922e-11
+      },
+      "stress_max_scaled_to_old_or_1": 1.3096007651611522e-11,
+      "status": "COMPARED"
+    },
+    {
+      "group": "Hp_05",
+      "case": "pure_shear_xy",
+      "job": "refine_Hp_3840__Hp_05",
+      "expected_frames": 3840,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 3840,
+      "new_frames": 3840,
+      "max_abs": {
+        "S": 4.1449510490565444e-11,
+        "LE": 2.9791182297056295e-57,
+        "SDV14": 2.0744650441884005e-10,
+        "SDV37": 3.5977156583738568e-12,
+        "SDV38": 2.819855460245435e-12,
+        "SDV39": 0.0,
+        "SDV59": 3.5839532838873034e-12,
+        "SDV60": 2.8199664825478976e-12
+      },
+      "stress_max_scaled_to_old_or_1": 8.498399599444156e-12,
+      "status": "COMPARED"
+    },
+    {
+      "group": "E_high",
+      "case": "compression_lateral_expansion",
+      "job": "suite_r2__E_high",
+      "expected_frames": 240,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 240,
+      "new_frames": 240,
+      "max_abs": {
+        "S": 1.4004228887642967e-09,
+        "LE": 0.0,
+        "SDV14": 5.59666202271103e-12,
+        "SDV37": 0.0,
+        "SDV38": 0.0,
+        "SDV39": 0.0,
+        "SDV59": 0.0,
+        "SDV60": 0.0
+      },
+      "stress_max_scaled_to_old_or_1": 6.956553675684666e-12,
+      "status": "COMPARED"
+    },
+    {
+      "group": "Df_075",
+      "case": "compression_cycles",
+      "job": "suite_r2__Df_075",
+      "expected_frames": 240,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 240,
+      "new_frames": 240,
+      "max_abs": {
+        "S": 2.041247171291616e-09,
+        "LE": 0.0,
+        "SDV14": 5.60156365736475e-10,
+        "SDV37": 3.1449565174312966e-12,
+        "SDV38": 6.151412712540605e-12,
+        "SDV39": 0.0,
+        "SDV59": 3.144984273006912e-12,
+        "SDV60": 6.151398834752797e-12
+      },
+      "stress_max_scaled_to_old_or_1": 6.670796517953517e-12,
+      "status": "COMPARED"
+    },
+    {
+      "group": "Hp_05",
+      "case": "biaxial_tension",
+      "job": "refine_Hp_960__Hp_05",
+      "expected_frames": 960,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 960,
+      "new_frames": 960,
+      "max_abs": {
+        "S": 1.4310330698208418e-11,
+        "LE": 0.0,
+        "SDV14": 2.764415085731997e-11,
+        "SDV37": 8.330150805258008e-13,
+        "SDV38": 0.0,
+        "SDV39": 0.0,
+        "SDV59": 8.322162403651134e-13,
+        "SDV60": 0.0
+      },
+      "stress_max_scaled_to_old_or_1": 4.9053670963906774e-12,
+      "status": "COMPARED"
+    },
+    {
+      "group": "Hp_05",
+      "case": "compression_constrained",
+      "job": "refine_Hp_960__Hp_05",
+      "expected_frames": 960,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 960,
+      "new_frames": 960,
+      "max_abs": {
+        "S": 4.889386673312401e-10,
+        "LE": 0.0,
+        "SDV14": 3.022703615185307e-12,
+        "SDV37": 0.0,
+        "SDV38": 0.0,
+        "SDV39": 0.0,
+        "SDV59": 0.0,
+        "SDV60": 0.0
+      },
+      "stress_max_scaled_to_old_or_1": 4.295223928962052e-12,
+      "status": "COMPARED"
+    },
+    {
+      "group": "Hp_05",
+      "case": "mixed_sign",
+      "job": "refine_Hp_960__Hp_05",
+      "expected_frames": 960,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 960,
+      "new_frames": 960,
+      "max_abs": {
+        "S": 1.0107825687555305e-10,
+        "LE": 0.0,
+        "SDV14": 1.4876988529977098e-11,
+        "SDV37": 1.0121903315507552e-12,
+        "SDV38": 9.435785486289205e-13,
+        "SDV39": 0.0,
+        "SDV59": 1.0120793092482927e-12,
+        "SDV60": 9.43467526326458e-13
+      },
+      "stress_max_scaled_to_old_or_1": 4.031621875433306e-12,
+      "status": "COMPARED"
+    },
+    {
+      "group": "E_high",
+      "case": "seeded_diagonal",
+      "job": "suite_r2__E_high",
+      "expected_frames": 240,
+      "old_completed": true,
+      "new_completed": true,
+      "old_frames": 240,
+      "new_frames": 240,
+      "max_abs": {
+        "S": 2.93780999527371e-10,
+        "LE": 0.0,
+        "SDV14": 4.42444303416778e-10,
+        "SDV37": 3.4294928008549164e-12,
+        "SDV38": 3.0673241724343825e-12,
+        "SDV39": 0.0,
+        "SDV59": 3.4294928008549164e-12,
+        "SDV60": 3.0673796835856137e-12
+      },
+      "stress_max_scaled_to_old_or_1": 3.445516845309485e-12,
+      "status": "COMPARED"
+    }
+  ],
+  "max_abs": {
+    "S": 3.811486237736972e-09,
+    "LE": 2.9791182297056295e-57,
+    "SDV14": 8.498591341776773e-08,
+    "SDV37": 1.9246892968283191e-10,
+    "SDV38": 7.595346573907591e-11,
+    "SDV39": 0.0,
+    "SDV59": 1.924227444050075e-10,
+    "SDV60": 7.588061949614922e-11
+  }
+}

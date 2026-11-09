@@ -1,11 +1,17 @@
 # Reinforcing-bar pullout
 
+## Example layout
+
+Inputs in this folder are Example 1; [case2/](case2/) contains Example 2. The combined PDF covers both.
+Saved results were not rerun as part of this publication. See the [verification guide](../../docs/CDPM2_Verification_EN.pdf) for the current source scope.
+
+
 [日本語](README_JA.md)
 
 A quarter-model Abaqus/Standard example comparing the CDPM2 UMAT and built-in CDP. Both cases use the same mesh, steel, support, contact and loading conditions. CDP tensile and compressive damage are capped at 0.99. Viscosity is 1e-4 for CDP and 1e-3 for CDPM2.
 
-- [Example guide and results](Pullout_Example_EN.pdf)
-- [Japanese guide](Pullout_Example_JA.pdf)
+- [Example guide and results](CDPM2_Examples_EN.pdf)
+- [Japanese guide](CDPM2_Examples_JA.pdf)
 
 ## Run
 

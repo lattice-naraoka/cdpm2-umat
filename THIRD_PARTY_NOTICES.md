@@ -21,3 +21,10 @@ Source modifications were made from 2026-09-30 to 2026-10-14. The OOFEM referenc
 OOFEM, Abaqus and HYPLAS are separate projects. This is not an OOFEM- or SIMULIA-provided/endorsed UMAT. The nonlinear-FEM book and HYPLAS informed general numerical methods; their pages/programs are not included. Abaqus software, manuals and libraries are not included. Third-party experimental material retains its owners' rights. Comparison plots are independently generated from simulation results and numerical values read from published plots; original third-party images and measured datasets are not distributed.
 
 Additional modifications cover damage-increment control after viscous relaxation, local convergence based on the kappa increment, equilibration/backward-error checks for the four-equation solve, and reference geometry saved in added STATEV for restart. The original 62 material/work variables are retained; 89-variable inputs enable self-contained geometry restoration. These changes do not substitute a different damage constitutive model.
+
+
+## Research preview modifications — 2026-11-06 / 研究用候補の追加変更
+
+Normalized/log-domain plastic flow and multiplier transformation; root-checked algebraic continuation; characteristic-length and spectral tangent corrections. The source header retains its earlier historical modification-date line; this notice extends the modification history through 2026-11-06. No warranty. See VALIDATION.md for limitations.
+
+流動方向の正規化・塑性乗数変換、対数領域計算、複数解確認付き継続法、特性長とスペクトル接線の修正を追加。ソース先頭の旧日付は過去の履歴であり、本通知が2026-11-06までの変更を補足します。無保証。検証制約はVALIDATION.mdを参照。

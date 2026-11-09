@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-09",
+  "nodes": 441295,
+  "elements": {
+    "*Element, type=C3D8R, elset=BAR": 137728,
+    "*Element, type=C3D8R, elset=CONCRETE": 281856,
+    "*Element, type=T3D2, elset=SPIRAL": 1664
+  },
+  "source_sha256": {
+    "pullout_case2_cdp_s13_20261101/case2_cdp_s13.inp": "c67d6e68332ef6491174c84b5672866e37cd2cb0c01c18e37435797632a1c9a8",
+    "pullout_case2_cdpm2_s13_20261101/case2_cdpm2_s13.inp": "bcff4eff9929ad4609ab36dfe4f1ba9735c1ca7004ca9b78588df1783cde4c36",
+    "pullout_case2_cdp_s13_20261101/mesh.inp": "055a0e84dc0e95173361921aeb41c8db4a50429615ea8b1342c6e00167df73f1",
+    "pullout_case2_cdp_s13_20261101/material.inp": "e59d2cd80356d98f97b048972172bddccece847308f04480fb3f05355b2b2bcb",
+    "pullout_case2_cdp_s13_20261101/steel_plastic.inp": "9db546cf112623557c1d52c648dbc3adf7a41216e3bc93fde0b4a3f9cd9e9126",
+    "pullout_case2_cdp_s13_20261101/extract_history.py": "a6703d0936f1f3fe6b1ae88e2d48993466f81c9c30a92197b22e18e6384f241d",
+    "pullout_case2_cdp_s13_r1_20261103/case2_cdp_s13_r1.inp": "fa4ca879961d72eec2287f91884e9f36f5efd26c61e0ba22a2e37b112133b7ec"
+  },
+  "units": "N-mm-MPa",
+  "concrete_diameter_mm": 914,
+  "concrete_height_mm": 855,
+  "bar_diameter_mm": 57,
+  "bond_length_mm": 285,
+  "full_model": true,
+  "mean_slip": "0.5*((bar_Z285-concrete_Z0)+(bar_Z570-concrete_Z855))",
+  "material_viscosity": {
+    "CDPM2": 0.001,
+    "CDP": 0.0001
+  }
+}

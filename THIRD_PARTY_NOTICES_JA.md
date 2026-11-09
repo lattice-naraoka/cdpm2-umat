@@ -23,3 +23,10 @@ OOFEM、Abaqus、HYPLASは別プロジェクトです。本配布版はOOFEMやS
 第三者の実験資料の権利は各権利者に属します。比較図は解析結果と公開図から読み取った数値に基づいて独自に作成したもので、原図や原測定データの再配布ではありません。
 
 追加修正は、粘性緩和後の損傷増分判定、kappa増分に基づく局所収束判定、4元連立方程式のスケーリングと後退誤差確認、追加STATEVによる初期形状のリスタート保存です。従来の材料状態62変数は保持し、89変数入力で自動復元を利用します。構成則を別の損傷モデルへ置き換える変更ではありません。
+
+
+## Research preview modifications — 2026-11-06 / 研究用候補の追加変更
+
+Normalized/log-domain plastic flow and multiplier transformation; root-checked algebraic continuation; characteristic-length and spectral tangent corrections. The source header retains its earlier historical modification-date line; this notice extends the modification history through 2026-11-06. No warranty. See VALIDATION.md for limitations.
+
+流動方向の正規化・塑性乗数変換、対数領域計算、複数解確認付き継続法、特性長とスペクトル接線の修正を追加。ソース先頭の旧日付は過去の履歴であり、本通知が2026-11-06までの変更を補足します。無保証。検証制約はVALIDATION.mdを参照。

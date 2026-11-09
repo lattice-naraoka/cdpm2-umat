@@ -1,11 +1,17 @@
 # 鉄筋引抜き解析
 
+## 例題の構成
+
+このフォルダ直下は例題1、[case2/](case2/)は例題2の入力です。合冊PDFは両例題を掲載しています。
+保存結果の再解析は今回の資料更新では行っていません。現行ソースの検証範囲は[検証ガイド](../../docs/CDPM2_Verification_JA.pdf)を参照してください。
+
+
 [English](README.md)
 
 CDPM2 UMATと組込みCDPを比較するAbaqus/Standardの1/4モデル例題です。メッシュ、鉄筋、支持、接触、載荷条件を共通とし、CDPの引張・圧縮損傷上限は0.99としています。粘性はCDPが1e-4、CDPM2が1e-3です。
 
-- [例題の説明と結果](Pullout_Example_JA.pdf)
-- [英語版](Pullout_Example_EN.pdf)
+- [例題の説明と結果](CDPM2_Examples_JA.pdf)
+- [英語版](CDPM2_Examples_EN.pdf)
 
 ## 実行
 

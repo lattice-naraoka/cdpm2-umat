@@ -1,3 +1,4 @@
+! EXPERIMENTAL normalized-flow candidate 2026-11-06. Not a published release.
 ! SPDX-License-Identifier: LGPL-2.1-or-later
 ! OOFEM original portions: Copyright (C) 1993 - 2013 Borek Patzak
 ! Modified for a Fortran Abaqus UMAT, 2026-09-30 to 2026-10-14.
@@ -172,35 +173,66 @@ module cdpm2_functions
   implicit none
   private
   public :: hardening_one, hardening_two, yield_value
-  public :: flow_gradient, ductility, hardening_rate, regular_residual, regular_jacobian
+  public :: flow_gradient, normalized_flow_derivatives, ductility, hardening_rate, regular_residual, regular_jacobian
 contains
   pure function flow_gradient(sig,rho,k,fc,ft,ecc,q0,hp,dilation) result(dg)
-    ! Literal computeDGDInv translation; nonassociated potential, not df/dsigma.
-    real(real64), intent(in) :: sig,rho,k,fc,ft,ecc,q0,hp,dilation
-    real(real64) :: dg(2),q1,q2,m,ag,bg,mq,a,b,logmq
-    q1=hardening_one(k,q0,hp)
-    q2=hardening_two(k,hp)
-    m=3*(fc**2-ft**2)/(fc*ft)*ecc/(ecc+1)
-    ag=3*ft*q1*q2/fc+m*q1**2/2
-    bg=q1*q2*(1+ft/fc)/3 / &
-       (log(ag)+log(dilation+1)-log(2*dilation-1)-log(3*q1*q2+m*q1**2/2))
-    logmq=log(ag)+(sig-ft*q1*q2/3)/(fc*bg)
-    ! Reject numerically unusable exponential trials; never clamp the flow.
-    ! Reserve headroom for squared flow norm and subsequent residual products.
-    if (.not.ieee_is_finite(logmq)) then
-      dg=ieee_value(0.0_real64,ieee_quiet_nan)
-      return
-    end if
-    if (logmq>log(huge(1.0_real64))/4) then
-      dg=ieee_value(0.0_real64,ieee_quiet_nan)
-      return
-    end if
-    mq=exp(logmq)
-    b=sig/fc+rho/(fc*sqrt(6.0_real64))
-    a=(1-q1)*b**2+sqrt(1.5_real64)*rho/fc
-    dg(1)=4*(1-q1)/fc*a*b+q1**2*mq/fc
-    dg(2)=a/(sqrt(6.0_real64)*fc)*(4*(1-q1)*b+6)+m*q1**2/(sqrt(6.0_real64)*fc)
+    ! INTERNAL API: returns weighted-unit flow, not the unscaled potential gradient.
+    real(real64),intent(in)::sig,rho,k,fc,ft,ecc,q0,hp,dilation
+    real(real64)::dg(2),dn(2,3)
+    logical::ok
+    call normalized_flow_derivatives(sig,rho,k,fc,ft,ecc,q0,hp,dilation,dg,dn,ok)
+    if(.not.ok)dg=ieee_value(0._real64,ieee_quiet_nan)
   end function
+
+  pure subroutine normalized_flow_derivatives(sig,rho,k,fc,ft,ecc,q0,hp,dilation,g,dg,ok)
+    real(real64),intent(in)::sig,rho,k,fc,ft,ecc,q0,hp,dilation
+    real(real64),intent(out)::g(2),dg(2,3)
+    logical,intent(out)::ok
+    real(real64)::q,v,qp,vp,m,b,a,ag,bg,top,bot,z,num,lm,term
+    real(real64)::dq(3),dv(3),db(3),da(3),dag(3),dbg(3),dz(3),dtop(3),dl(3),dnum(3),dterm(3)
+    real(real64)::poly,dev,le,scale,inv,ex,norm,dnorm(3),ds(2,3)
+    g=0;dg=0;ok=.false.
+    if(.not.all(ieee_is_finite([sig,rho,k,fc,ft,ecc,q0,hp,dilation])))return
+    if(fc<=ft.or.ft<=0.or.k<0.or.rho<0.or.q0<=0.or.q0>1.or.hp<0)return
+    if(dilation<=.5_real64.or.dilation>=1.or.ecc<=.5_real64.or.ecc>=1)return
+    q=hardening_one(k,q0,hp);v=hardening_two(k,hp);qp=0;vp=0
+    if(k>=0.and.k<1)qp=3*(1-q0-hp)*k**2-2*(3*(1-q0)-3*hp)*k+(3*(1-q0)-2*hp)
+    if(k>=1)vp=hp
+    if(q<=0)return
+    dq=[0._real64,0._real64,qp];dv=[0._real64,0._real64,vp]
+    m=3*(fc**2-ft**2)/(fc*ft)*ecc/(ecc+1)
+    b=sig/fc+rho/(sqrt(6._real64)*fc)
+    db=[1/fc,1/(sqrt(6._real64)*fc),0._real64]
+    a=(1-q)*b**2+sqrt(1.5_real64)*rho/fc
+    da=2*(1-q)*b*db-b**2*dq;da(2)=da(2)+sqrt(1.5_real64)/fc
+    ag=3*ft*q*v/fc+m*q**2/2
+    dag=3*ft/fc*(v*dq+q*dv)+m*q*dq
+    z=3*q*v+m*q**2/2;dz=3*(v*dq+q*dv)+m*q*dq
+    top=q*v*(1+ft/fc)/3;dtop=(v*dq+q*dv)*(1+ft/fc)/3
+    bot=log(ag)+log(dilation+1)-log(2*dilation-1)-log(z)
+    bg=top/bot;dbg=(dtop-bg*(dag/ag-dz/z))/bot
+    num=sig-ft*q*v/3;dnum=-ft*(v*dq+q*dv)/3;dnum(1)=dnum(1)+1
+    lm=log(ag)+num/(fc*bg)
+    dl=dag/ag+dnum/(fc*bg)-num*dbg/(fc*bg**2)
+    poly=4*(1-q)/fc*a*b
+    term=4*(1-q)*b+6;dterm=4*((1-q)*db-b*dq)
+    dev=(a*term+m*q**2)/(sqrt(6._real64)*fc)
+    if(.not.all(ieee_is_finite([lm,poly,dev,dl])))return
+    le=lm+2*log(q)-log(fc);scale=max(0._real64,le)
+    if(poly/=0)scale=max(scale,log(abs(poly)))
+    if(dev/=0)scale=max(scale,log(abs(dev)))
+    inv=exp(-scale);ex=exp(le-scale)
+    g=[poly*inv+ex,dev*inv]
+    ds(1,:)=4/fc*((1-q)*(b*da+a*db)-a*b*dq)*inv+ex*(2*dq/q+dl)
+    ds(2,:)=(term*da+a*dterm+2*m*q*dq)/(sqrt(6._real64)*fc)*inv
+    norm=sqrt(g(1)**2/3+g(2)**2)
+    if(norm<=tiny(norm).or..not.ieee_is_finite(norm))return
+    g=g/norm;ds=ds/norm
+    dnorm=g(1)*ds(1,:)/3+g(2)*ds(2,:)
+    dg(1,:)=ds(1,:)-g(1)*dnorm
+    dg(2,:)=ds(2,:)-g(2)*dnorm
+    ok=all(ieee_is_finite(g)).and.all(ieee_is_finite(dg))
+  end subroutine
 
   pure real(real64) function ductility(sig,theta,fc,ah,bh,ch,dh) result(d)
     real(real64), intent(in) :: sig,theta,fc,ah,bh,ch,dh
@@ -221,7 +253,7 @@ contains
   end function
 
   pure function regular_residual(x,trial,kold,bulk,shear,theta,fc,ft,ecc,q0,hp,dilation,ah,bh,ch,dh) result(r)
-    ! Unknowns: mean stress, deviator norm, kappa, plastic multiplier.
+    ! Unknowns: mean stress, deviator norm, kappa, alpha=lambda*flow_norm.
     ! Residual definition only. No Newton iteration or vertex return yet.
     real(real64), intent(in) :: x(4),trial(2),kold,bulk,shear,theta,fc,ft,ecc,q0,hp,dilation,ah,bh,ch,dh
     real(real64) :: r(4),dg(2),d
@@ -233,7 +265,7 @@ contains
     d=ductility(x(1),theta,fc,ah,bh,ch,dh)
     r(1)=x(1)-trial(1)+bulk*x(4)*dg(1)
     r(2)=x(2)-trial(2)+2*shear*x(4)*dg(2)
-    r(3)=-x(3)+kold+x(4)*hardening_rate(dg,d)
+    r(3)=-x(3)+kold+x(4)/d
     r(4)=yield_value(x(1),x(2),theta,x(3),fc,ft,ecc,q0,hp)
   end function
 
@@ -270,7 +302,7 @@ contains
     f = a**2+q1**2*q2*m*(sig/fc+rho*r/(sqrt(6.0_real64)*fc))-q1**2*q2**2
   end function
   pure subroutine regular_jacobian(x,bulk,shear,theta,fc,ft,ecc,q0,hp,dilation,ah,bh,ch,dh,jac,ok)
-    ! Derivative of existing regular_residual w.r.t. (mean,rho,kappa,lambda).
+    ! Derivative of existing regular_residual w.r.t. (mean,rho,kappa,alpha=lambda*flow_norm).
     ! Trial stress, old kappa and trial theta are fixed. NOT Abaqus DDSDDE.
     ! At kappa=0/1 use admissible right-branch derivatives; do not average laws.
     real(real64),intent(in)::x(4),bulk,shear,theta,fc,ft,ecc,q0,hp,dilation,ah,bh,ch,dh
@@ -299,11 +331,8 @@ contains
     bot=log(ag)+log(dilation+1)-log(2*dilation-1)-log(z)
     bg=top/bot;dbg=(dtop-bg*(dag/ag-dz/z))/bot
     num=x(1)-ft*q*v/3;dnum=-ft*(v*dq+q*dv)/3;dnum(1)=dnum(1)+1
-    logmq=log(ag)+num/(fc*bg);mq=exp(logmq)
-    dlog=dag/ag+dnum/(fc*bg)-num*dbg/(fc*bg**2)
-    ddg(1,:)=4/fc*((1-q)*(b*da+a*db)-a*b*dq)+(2*q*mq*dq+q**2*mq*dlog)/fc
-    term=4*(1-q)*b+6;dterm=4*((1-q)*db-b*dq)
-    ddg(2,:)=(term*da+a*dterm+2*m*q*dq)/(sqrt(6._real64)*fc)
+    call normalized_flow_derivatives(x(1),x(2),x(3),fc,ft,ecc,q0,hp,dilation,dg,ddg,ok)
+    if(.not.ok)return
     ddilat=ductility(x(1),theta,fc,ah,bh,ch,dh);dd=0;xx=-(x(1)+fc/3)/fc
     if(xx<0)then
       eh=bh-dh;fh=(bh-dh)*ch/(ah-bh)
@@ -311,10 +340,8 @@ contains
     else
       dd(1)=(bh-ah)*exp(-xx/ch)/(fc*ch*(2*cos(theta))**2)
     end if
-    n=sqrt(dg(1)**2/3+dg(2)**2)
-    if(n<=tiny(1._real64).or.ddilat<=0)return
-    dn=(dg(1)*ddg(1,:)/3+dg(2)*ddg(2,:))/n
-    rate=n/ddilat;drate=dn/ddilat-n*dd/ddilat**2
+    if(ddilat<=0)return
+    rate=1/ddilat;drate=-dd/ddilat**2
     c=cos(theta)
     shape=(4*(1-ecc**2)*c**2+(2*ecc-1)**2)/ &
       (2*(1-ecc**2)*c+(2*ecc-1)*sqrt(4*(1-ecc**2)*c**2+5*ecc**2-4*ecc))
@@ -336,7 +363,7 @@ module cdpm2_return
   use cdpm2_functions
   implicit none
   private
-  public :: material_parameters, regular_return, regular_return_seed
+  public :: material_parameters, regular_return, regular_return_seed, solve4, regular_continuation
   type material_parameters
     real(real64) :: bulk=19940.1883333333_real64, shear=14955.14125_real64
     real(real64) :: fc=35.892339_real64,ft=2.71644205_real64,ecc=.525_real64
@@ -386,6 +413,58 @@ contains
     endif
   end subroutine
 
+  subroutine regular_continuation(p,trial,theta,kold,state,rc)
+    type(material_parameters),intent(in)::p
+    real(real64),intent(in)::trial(2),theta,kold
+    real(real64),intent(inout)::state(4)
+    integer,intent(out)::rc
+    real(real64)::a(4),b(4),xs(4)
+    integer::ra,rb
+    a=0;b=0;rc=1
+    call continuation_path(p,trial,theta,kold,a,ra,.125_real64)
+    call continuation_path(p,trial,theta,kold,b,rb,.0625_real64)
+    if(ra/=0.and.rb/=0)return
+    if(ra==0.and.rb==0)then
+      xs=[p%fc,p%fc,max(1._real64,abs(a(3)),abs(b(3))), &
+        max(p%fc/p%bulk,abs(a(4)),abs(b(4)))]
+      if(maxval(abs(a-b)/xs)>1e-3_real64)return
+    endif
+    if(ra==0)then;state=a;else;state=b;endif
+    rc=0
+  end subroutine
+
+  subroutine continuation_path(p,trial,theta,kold,state,rc,initial_step)
+    ! Experimental algebraic continuation, NOT constitutive substepping.
+    ! kold, theta and material parameters stay fixed for the entire solve.
+    ! Intermediate roots are initial guesses only; only the full trial is committed.
+    type(material_parameters),intent(in)::p
+    real(real64),intent(in)::trial(2),theta,kold,initial_step
+    real(real64),intent(inout)::state(4)
+    integer,intent(out)::rc
+    real(real64)::seed(4),next(4),t,tn,ds
+    integer::attempt,lr,it
+    seed=[0._real64,0._real64,kold,0._real64]
+    t=0;ds=initial_step;rc=1
+    do attempt=1,256
+      tn=min(1._real64,t+ds);next=seed
+      call regular_return_seed(p,tn*trial,theta,kold,next,lr,it,60,seed)
+      if(lr==0)then
+        seed=next;t=tn
+        if(t==1._real64)then
+          ! Final unmodified endpoint equation and acceptance checks.
+          call regular_return_seed(p,trial,theta,kold,next,lr,it,60,seed)
+          if(lr==0)then;state=next;rc=0;endif
+          return
+        endif
+        ds=min(initial_step,ds*1.5_real64)
+      else
+        if(lr==2)return
+        ds=ds/2
+        if(ds<1._real64/4096)return
+      endif
+    enddo
+  end subroutine
+
   subroutine regular_return_seed(p,trial,theta,kold,state,rc,iterations,maxiter,seed)
     type(material_parameters), intent(in) :: p
     real(real64), intent(in) :: trial(2),theta,kold
@@ -420,7 +499,7 @@ contains
     ! Keep residual, Jacobian, Newton direction and line-search merit unchanged.
     ! This explicitly changes the yield stopping norm, not the material equations.
     yield_scale=max(1._real64,(hardening_one(kold,p%q0,p%hp)*hardening_two(kold,p%hp))**2)
-    scale=[p%fc,p%fc,1.0_real64,p%fc**2/p%bulk]
+    scale=[p%fc,p%fc,1.0_real64,p%fc/p%bulk]
     y=[trial,kold,0.0_real64]/scale
     if(present(seed))y=seed/scale
     rc=1
@@ -807,6 +886,7 @@ contains
           seed=[om,orr,kold,0._real64]
           if(rc==1.or.rc==3.or.rc==4)then
             call regular_return_seed(p,[mean,rho],theta,kold,x,rc,it,60,seed)
+            if(rc==1.or.rc==3.or.rc==4)call regular_continuation(p,[mean,rho],theta,kold,x,rc)
           else if(rc==0)then
             !1134: one independent committed-state seed, not root enumeration.
             ! Two converged but distinct endpoint solutions are ambiguous:
@@ -815,7 +895,7 @@ contains
             call regular_return_seed(p,[mean,rho],theta,kold,alt,ar,ai,60,seed)
             if(ar==0)then
               xs=[p%fc,p%fc,max(1._real64,abs(x(3)),abs(alt(3))), &
-                max(p%fc**2/p%bulk,abs(x(4)),abs(alt(4)))]
+                max(p%fc/p%bulk,abs(x(4)),abs(alt(4)))]
               if(maxval(abs(x-alt)/xs)>1e-3_real64)rc=1
             endif
           endif
@@ -1313,7 +1393,7 @@ end module
 
 module properties_161
  use iso_fortran_env,only:real64
- use cdpm2_return,only:material_parameters
+ use cdpm2_return,only:material_parameters,solve4
  use cdpm2_damage_history,only:damage_parameters
  use cdpm2_return,only:regular_return
  use ieee_arithmetic,only:ieee_is_finite
@@ -1957,7 +2037,7 @@ contains
 end module
 
 module viscosity_1049
- use cdpm2_return,only:material_parameters
+ use cdpm2_return,only:material_parameters,solve4
  use cdpm2_split,only:damaged_stress
  use iso_fortran_env,only:real64
  use ieee_arithmetic,only:ieee_is_finite
@@ -2016,7 +2096,7 @@ module endpoint_1076
  use iso_fortran_env,only:real64
  use ieee_arithmetic,only:ieee_is_finite
  use cdpm2_model,only:material_state
- use cdpm2_return,only:material_parameters
+ use cdpm2_return,only:material_parameters,solve4
  use cdpm2_plastic,only:plastic_update,elastic_stress,elastic_strain,invariants
  use cdpm2_functions,only:regular_jacobian,regular_residual,flow_gradient,hardening_two
  use cdpm2_damage_history,only:damage_parameters,damage_history,update_damage
@@ -2032,6 +2112,19 @@ module endpoint_1076
  end type
 contains
  subroutine solve46(a,b,x,ok)
+ real(real64),intent(in)::a(4,4),b(4,6)
+ real(real64),intent(out)::x(4,6)
+ logical,intent(out)::ok
+ integer::j
+ call solve46_legacy(a,b,x,ok)
+ if(ok)return
+ ! Same linear equations; reuse column/row balanced solve and backward check.
+ do j=1,6
+  call solve4(a,b(:,j),x(:,j),ok)
+  if(.not.ok)return
+ enddo
+ end subroutine
+ subroutine solve46_legacy(a,b,x,ok)
  real(real64),intent(in)::a(4,4),b(4,6)
  real(real64),intent(out)::x(4,6)
  logical,intent(out)::ok
@@ -2123,8 +2216,15 @@ contains
  call invariants(s,pn,rn,tn,v)
  if(r0<=tiny(r0))then;fallback=1;return;endif
  dg=flow_gradient(pn,rn,k,p%fc,p%ft,p%ecc,p%q0,p%hp,p%dilation)
- if(abs(dg(2))<=tiny(r0))then;fallback=1;return;endif
- x=[pn,rn,k,(r0-rn)/(2*p%shear*dg(2))]
+ ! Recover alpha from the better-conditioned stress equation, never lambda.
+ if(.not.all(ieee_is_finite(dg)))then;fallback=1;return;endif
+ if(abs(p%bulk*dg(1))>=abs(2*p%shear*dg(2)))then
+  if(abs(dg(1))<=tiny(r0))then;fallback=1;return;endif
+  x=[pn,rn,k,(p0-pn)/(p%bulk*dg(1))]
+ else
+  if(abs(dg(2))<=tiny(r0))then;fallback=1;return;endif
+  x=[pn,rn,k,(r0-rn)/(2*p%shear*dg(2))]
+ endif
  call regular_jacobian(x,p%bulk,p%shear,th,p%fc,p%ft,p%ecc,p%q0,p%hp,p%dilation, &
   p%ah,p%bh,p%ch,p%dh,jac,ok)
  if(.not.ok)then;fallback=1;return;endif
@@ -2200,6 +2300,8 @@ contains
  end function
 
  subroutine damage_sensitivity(p,d,old,new,go,gn,ge,fallback)
+ use strain_direction_146,only:maximum_strain_direction
+ use geometry_length_143,only:projected_span
  type(material_parameters),intent(in)::p
  type(damage_parameters),intent(in)::d
  type(material_state),intent(in)::old,new
@@ -2211,9 +2313,31 @@ contains
  real(real64)::pmean,rho,theta,dev(6),dsig(6),drho(6),dtheta(6),rs,drs(6),duct,dd(6)
  real(real64)::pn,dpn(6),pn0,dpn0(6),deplast(6),gdplast(6,6),delta,ddelta(6),e0,tol
  real(real64)::fac,dfac(6),ex,dex(6),q2,dq2(6),w,wo,den,traction,slope,L,kap1,kap2,xx(6)
- integer::i,j,rc
+ real(real64)::dL(6),normal(3),lambda,gap,lp,lm,hl
+ integer::i,j,rc,rplus,rminus
  logical::reversal
  fallback=0;gn%hist=go%hist;e0=p%ft/d%young;tol=d%damage_tolerance
+ ! Differentiate the same projected-span selection used in update_damage.
+ ! Geometry is fixed during this endpoint strain derivative. After damage starts,
+ ! length is committed and its old-state sensitivity is carried instead.
+ dL=go%hist(1,:)
+ if(d%automatic_length.and.all(old%history%damage==0).and. &
+    new%history%threshold(1)>e0*(1-tol))then
+   do i=1,6
+     hl=1e-6_real64*max(norm2(new%strain),1e-4_real64)/max(1._real64,norm2(ge(:,i)))
+     call maximum_strain_direction(new%strain+hl*ge(:,i),normal,lambda,gap,rplus,d%reference_nodes)
+     if(rplus==0)call projected_span(d%reference_nodes,normal,lp,rplus)
+     call maximum_strain_direction(new%strain-hl*ge(:,i),normal,lambda,gap,rminus,d%reference_nodes)
+     if(rminus==0)call projected_span(d%reference_nodes,normal,lm,rminus)
+     if(rplus==0.and.rminus==0)then
+       dL(i)=(lp-lm)/(2*hl)
+     else
+       fallback=fallback+1
+     endif
+   enddo
+ endif
+ gn%hist(1,:)=dL
+
  call equiv_sensitivity(p,d,new%effective,gn%eff,eq,alpha,dq,da)
  call equiv_alpha(p,d,old%effective+.01_real64*(new%effective-old%effective),qp,ap,rc)
  call equiv_alpha(p,d,old%effective+.99_real64*(new%effective-old%effective),qm,ap,rc)
@@ -2280,6 +2404,7 @@ contains
    if(L*(kap1+w*kap2)>d%wf1+64*epsilon(1._real64)*d%wf)slope=-d%ft1/(d%wf-d%wf1)
    den=d%young*new%history%threshold(j)+slope*L*kap2
    xx=(1-w)*d%young*gn%hist(5+j,:)-slope*L*(gn%hist(7+j,:)+w*gn%hist(9+j,:))
+   if(d%automatic_length)xx=xx-slope*(kap1+w*kap2)*dL
   else
    traction=p%ft*(1-tol)*exp(-(kap1+w*kap2)/d%efc)
    den=d%young*new%history%threshold(j)-traction*kap2/d%efc
@@ -2291,8 +2416,7 @@ contains
    fallback=fallback+1
   endif
  enddo
- ! Selected length is carried as state, but its tangent is intentionally frozen.
- gn%hist(1,:)=0
+ ! Length derivative is nonzero only when the selection is strain-dependent.
  end subroutine
 
  subroutine split_sensitivity(s,ds,sp,sm,dsp,dsm,rc,hfd,local_fd)
@@ -2325,19 +2449,10 @@ contains
  enddo
  if(sweep>60)then;rc=1;return;endif
  lam=[a(1,1),a(2,2),a(3,3)];slopes=.5_real64;tol=1e-12_real64
- ! Zero-principal-stress kink: centered local spectral derivative in the same
- ! strain probe width as the prior algorithm. Never reintegrates plasticity.
- ! This avoids selecting a side from insignificant lateral stress noise.
- band=hfd*maxval(abs(ds))/scale
- if(minval(abs(lam))<=4*band)then
-   if(present(local_fd))local_fd=.true.
-  do j=1,6
-   call split_stress(s+hfd*ds(:,j),pp,mp,alpha,rc);if(rc/=0)return
-   call split_stress(s-hfd*ds(:,j),pm,mm,alpha,rc);if(rc/=0)return
-   dsp(:,j)=(pp-pm)/(2*hfd)
-  enddo
-  dsm=ds-dsp;return
- endif
+ ! Experimental sign-consistent spectral derivative. No finite probe width
+ ! changes the derivative of a strictly signed eigenvalue. At roundoff-zero
+ ! use a symmetric generalized slope; do not claim classical differentiability.
+ tol=64*epsilon(1._real64)
  where(lam>tol)slopes=1
  where(lam< -tol)slopes=0
  do i=1,3;do k=1,3
@@ -2460,7 +2575,7 @@ module endpoint_payload_1079
  use rotation_281,only:tensor
  use cdpm2_plastic,only:elastic_stress
  use cdpm2_model,only:material_state
- use cdpm2_return,only:material_parameters
+ use cdpm2_return,only:material_parameters,solve4
  use cdpm2_damage_history,only:damage_parameters
  use state_geometry_150,only:pack_geometry,unpack_geometry
  use iso_fortran_env,only:real64

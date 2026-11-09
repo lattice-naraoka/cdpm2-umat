@@ -1,0 +1,146 @@
+{
+  "traction": {
+    "previous": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 40,
+      "accepted_increments": 40
+    },
+    "spectral": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 40,
+      "accepted_increments": 40
+    },
+    "elements": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "S": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "LE": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "SDV": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    },
+    "nodes": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "U": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "RF": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    }
+  },
+  "axial": {
+    "previous": {
+      "attempt_rows": 42,
+      "failed_attempts": 1,
+      "equilibrium_iterations": 47,
+      "accepted_increments": 41
+    },
+    "spectral": {
+      "attempt_rows": 42,
+      "failed_attempts": 1,
+      "equilibrium_iterations": 46,
+      "accepted_increments": 41
+    },
+    "elements": {
+      "common_frames": 45,
+      "previous_frames": 45,
+      "spectral_frames": 45,
+      "variables": {
+        "S": {
+          "max_abs": 1.9000731271034965e-05,
+          "max_scaled": 7.256532313812451e-07
+        },
+        "LE": {
+          "max_abs": 6.943295358829331e-11,
+          "max_scaled": 6.943295358829331e-11
+        },
+        "SDV": {
+          "max_abs": 1.9190733418383843e-05,
+          "max_scaled": 3.4612653250221115e-06
+        }
+      }
+    },
+    "nodes": {
+      "common_frames": 45,
+      "previous_frames": 45,
+      "spectral_frames": 45,
+      "variables": {
+        "U": {
+          "max_abs": 1.7357309522108644e-11,
+          "max_scaled": 1.7357309522108644e-11
+        },
+        "RF": {
+          "max_abs": 2.970267013457928e-07,
+          "max_scaled": 2.970267013457928e-07
+        }
+      }
+    }
+  },
+  "shear": {
+    "previous": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 43,
+      "accepted_increments": 40
+    },
+    "spectral": {
+      "attempt_rows": 40,
+      "failed_attempts": 0,
+      "equilibrium_iterations": 43,
+      "accepted_increments": 40
+    },
+    "elements": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "S": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "LE": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "SDV": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    },
+    "nodes": {
+      "common_frames": 44,
+      "previous_frames": 44,
+      "spectral_frames": 44,
+      "variables": {
+        "U": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        },
+        "RF": {
+          "max_abs": 0.0,
+          "max_scaled": 0.0
+        }
+      }
+    }
+  }
+}

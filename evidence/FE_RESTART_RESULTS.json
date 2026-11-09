@@ -1,0 +1,42 @@
+{
+  "elements": {
+    "common_frames": 22,
+    "previous_frames": 22,
+    "spectral_frames": 22,
+    "variables": {
+      "S": {
+        "max_abs": 3.5793590313915047e-13,
+        "max_scaled": 1.1213252548714081e-13
+      },
+      "LE": {
+        "max_abs": 5.646728202211848e-16,
+        "max_scaled": 5.646728202211848e-16
+      },
+      "SDV": {
+        "max_abs": 3.561595462997502e-13,
+        "max_scaled": 1.748046152272309e-13
+      }
+    }
+  },
+  "nodes": {
+    "common_frames": 22,
+    "previous_frames": 22,
+    "spectral_frames": 22,
+    "variables": {
+      "U": {
+        "max_abs": 2.6291902682773483e-18,
+        "max_scaled": 2.6291902682773483e-18
+      },
+      "RF": {
+        "max_abs": 5.666007663052142e-09,
+        "max_scaled": 5.666007663052142e-09
+      }
+    }
+  },
+  "original_fil_in_restart_folder": false,
+  "all_fields_below_initial_absolute_1e9_threshold": false,
+  "note": "RF exceeds the initial absolute 1e-9 comparison threshold (observed 5.666e-9). Do not claim exact all-field agreement or silently loosen that threshold. Element fields and displacement are below 1e-9; geometry entries are exactly equal.",
+  "analyses_completed": true,
+  "geometry_exact": true,
+  "state_variables": 89
+}
